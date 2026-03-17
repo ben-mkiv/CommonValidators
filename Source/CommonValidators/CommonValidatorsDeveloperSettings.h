@@ -4,24 +4,6 @@
 #include "Templates/SubclassOf.h"
 #include "Animation/AnimBlueprint.h"
 #include "Engine/DeveloperSettings.h"
-#include "Kismet/BlueprintInstancedStructLibrary.h"
-#include "Kismet/BlueprintMapLibrary.h"
-#include "Kismet/BlueprintPathsLibrary.h"
-#include "Kismet/BlueprintPlatformLibrary.h"
-#include "Kismet/BlueprintSetLibrary.h"
-#include "Kismet/DataTableFunctionLibrary.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetArrayLibrary.h"
-#include "Kismet/KismetGuidLibrary.h"
-#include "Kismet/KismetInputLibrary.h"
-#include "Kismet/KismetInternationalizationLibrary.h"
-#include "Kismet/KismetMaterialLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetNodeHelperLibrary.h"
-#include "Kismet/KismetRenderingLibrary.h"
-#include "Kismet/KismetStringTableLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Kismet/KismetTextLibrary.h"
 
 #include "CommonValidatorsDeveloperSettings.generated.h"
 
@@ -77,24 +59,24 @@ public:
 		{
 			// FCommonValidatorClassArray
 			{
-				UKismetMathLibrary::StaticClass(),
-				UKismetSystemLibrary::StaticClass(),
-				UKismetTextLibrary::StaticClass(),
-				UKismetRenderingLibrary::StaticClass(),
-				UKismetMaterialLibrary::StaticClass(),
-				UKismetArrayLibrary::StaticClass(),
-				UGameplayStatics::StaticClass(),
-				UKismetStringTableLibrary::StaticClass(),
-				UKismetInternationalizationLibrary::StaticClass(),
-				UKismetInputLibrary::StaticClass(),
-				UKismetGuidLibrary::StaticClass(),
-				UDataTableFunctionLibrary::StaticClass(),
-				UBlueprintSetLibrary::StaticClass(),
-				UBlueprintPlatformLibrary::StaticClass(),
-				UBlueprintPathsLibrary::StaticClass(),
-				UBlueprintMapLibrary::StaticClass(),
-				UBlueprintInstancedStructLibrary::StaticClass(),
-				UKismetNodeHelperLibrary::StaticClass()
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetMathLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetSystemLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetTextLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetRenderingLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetMaterialLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetArrayLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.GameplayStatics")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetStringTableLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetInternationalizationLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetInputLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetGuidLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.DataTableFunctionLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.BlueprintSetLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.BlueprintPlatformLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.BlueprintPathsLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.BlueprintMapLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.BlueprintInstancedStructLibrary")),
+				TSoftClassPtr<>(FSoftClassPath("/Script/Engine.KismetNodeHelperLibrary"))
 			},
 			true
 		}
