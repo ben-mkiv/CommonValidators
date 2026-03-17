@@ -4,6 +4,24 @@
 #include "Templates/SubclassOf.h"
 #include "Animation/AnimBlueprint.h"
 #include "Engine/DeveloperSettings.h"
+#include "Kismet/BlueprintInstancedStructLibrary.h"
+#include "Kismet/BlueprintMapLibrary.h"
+#include "Kismet/BlueprintPathsLibrary.h"
+#include "Kismet/BlueprintPlatformLibrary.h"
+#include "Kismet/BlueprintSetLibrary.h"
+#include "Kismet/DataTableFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetArrayLibrary.h"
+#include "Kismet/KismetGuidLibrary.h"
+#include "Kismet/KismetInputLibrary.h"
+#include "Kismet/KismetInternationalizationLibrary.h"
+#include "Kismet/KismetMaterialLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetNodeHelperLibrary.h"
+#include "Kismet/KismetRenderingLibrary.h"
+#include "Kismet/KismetStringTableLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetTextLibrary.h"
 
 #include "CommonValidatorsDeveloperSettings.generated.h"
 
@@ -13,11 +31,19 @@ struct FCommonValidatorClassArray
 	GENERATED_BODY()
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Common Validators")
-	TArray<TSubclassOf<UObject>> ClassList;
+	TArray<TSoftClassPtr<UObject>> ClassList;
 
 	// Should this rule propagate to discovered children?
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Common Validators")
 	bool AllowPropagationToChildren = true;
+
+	bool MatchesClass(TSubclassOf<UObject> ClassToCheck) const
+	{
+		return ClassList.ContainsByPredicate([&](const TSoftClassPtr<UObject> &SoftClassPtr)
+		   {
+			   return AllowPropagationToChildren ? SoftClassPtr.IsValid() && ClassToCheck->IsChildOf(SoftClassPtr.Get()) : ClassToCheck.Get() == SoftClassPtr;
+		   });	
+	}
 };
 
 UCLASS(config = Editor, defaultconfig, meta = (DisplayName = "Common Validators"))
@@ -26,52 +52,89 @@ class COMMONVALIDATORS_API UCommonValidatorsDeveloperSettings : public UDevelope
 	GENERATED_BODY()
 
 public:
+	/* Empty Tick Node Validator */
 	// If true, we will validate for empty tick nodes.
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators")
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Empty Tick Node Validator")
 	bool bEnableEmptyTickNodeValidator = true;
 	
 	//If true, we throw an error, otherwise a warning!
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnableEmptyTickNodeValidator == true"))
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Empty Tick Node Validator", meta = (EditCondition = "bEnableEmptyTickNodeValidator == true"))
 	bool bErrorOnEmptyTickNodes = true;
+
 	
+	/* Pure Node Validator */
 	// if true, we will validate for pure nodes being executed multiple times
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators")
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Pure Node Validator")
 	bool bEnablePureNodeMultiExecValidator = true;
 	
 	//If true, we throw an error, otherwise a warning!
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnablePureNodeMultiExecValidator == true"))
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Pure Node Validator", meta = (EditCondition = "bEnablePureNodeMultiExecValidator == true"))
 	bool bErrorOnPureNodeMultiExec = true;
+
+	// Methods/Nodes from classes in this list will be ignored by the pure node validator
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Pure Node Validator", meta = (EditCondition = "bEnablePureNodeMultiExecValidator == true"))
+	TArray<FCommonValidatorClassArray> PureNodeValidatorHarmlessClasses = {
+		{
+			// FCommonValidatorClassArray
+			{
+				UKismetMathLibrary::StaticClass(),
+				UKismetSystemLibrary::StaticClass(),
+				UKismetTextLibrary::StaticClass(),
+				UKismetRenderingLibrary::StaticClass(),
+				UKismetMaterialLibrary::StaticClass(),
+				UKismetArrayLibrary::StaticClass(),
+				UGameplayStatics::StaticClass(),
+				UKismetStringTableLibrary::StaticClass(),
+				UKismetInternationalizationLibrary::StaticClass(),
+				UKismetInputLibrary::StaticClass(),
+				UKismetGuidLibrary::StaticClass(),
+				UDataTableFunctionLibrary::StaticClass(),
+				UBlueprintSetLibrary::StaticClass(),
+				UBlueprintPlatformLibrary::StaticClass(),
+				UBlueprintPathsLibrary::StaticClass(),
+				UBlueprintMapLibrary::StaticClass(),
+				UBlueprintInstancedStructLibrary::StaticClass(),
+				UKismetNodeHelperLibrary::StaticClass()
+			},
+			true
+		}
+	};
+
 	
+	/* Blocking Load Validator */
 	// If true, we will validate for blocking loads in blueprints
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators")
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Blocking Load Validator")
 	bool bEnableBlockingLoadValidator = true;
 	
 	//If true, we throw an error, otherwise a warning!
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnableBlockingLoadValidator == true"))
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Blocking Load Validator", meta = (EditCondition = "bEnableBlockingLoadValidator == true"))
 	bool bErrorBlockingLoad = true;
 
+	
+	/* Heavy Reference Validator */
 	// If true, we will validate for references above the set value in blueprints
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators")
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Heavy Reference Validator")
 	bool bEnableHeavyReferenceValidator = true;
 
 	// If the total size on disk is above this, we consider the asset heavy
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Heavy Reference Validator", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
 	int MaximumAllowedReferenceSizeKiloBytes = 20480;
 
 	// Whether an inability to gather the size of a child asset is an warning
 	// This will prevent further context messages in most cases
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Heavy Reference Validator", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
 	bool bWarnOnUnsizableChildren = false;
 
 	//If true, we throw an error, otherwise a warning!
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Heavy Reference Validator", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
 	bool bErrorHeavyReference = false;
 
 	// Classes in this list, and their children, are ignored by heavy reference validator
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
-	TArray<TSubclassOf<UObject>> HeavyValidatorClassAndChildIgnoreList = {UAnimBlueprint::StaticClass()};
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Heavy Reference Validator", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
+	TArray<TSoftClassPtr<UObject>> HeavyValidatorClassAndChildIgnoreList = {UAnimBlueprint::StaticClass()};
 
 	// Classes in this list, and only classes in this list, are ignored by heavy reference validator
-	UPROPERTY(Config, EditAnywhere, Category="Common Validators", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
-	TMap<TSubclassOf<UObject>, FCommonValidatorClassArray> HeavyValidatorClassSpecificClassIgnoreList;
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Heavy Reference Validator", meta = (EditCondition = "bEnableHeavyReferenceValidator == true"))
+	TMap<TSoftClassPtr<UObject>, FCommonValidatorClassArray> HeavyValidatorClassSpecificClassIgnoreList;
+
 };
