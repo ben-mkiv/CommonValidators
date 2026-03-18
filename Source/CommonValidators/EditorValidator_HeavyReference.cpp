@@ -170,7 +170,7 @@ EDataValidationResult UEditorValidator_HeavyReference::ValidateLoadedAsset_Imple
 				FText::Format(
 					LOCTEXT("CommonValidators.HeavyRef.AssetWarning", "Heavy references in asset {0}! ({1})"),
 					FText::FromString(InAssetIdentifier.ToString()),
-					TotalSize
+					FText::AsMemory(TotalSize)
 					),
 				(DevSettings->bErrorHeavyReference ? EMessageSeverity::Error : EMessageSeverity::PerformanceWarning)
 			);

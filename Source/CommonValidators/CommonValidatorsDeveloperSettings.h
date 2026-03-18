@@ -92,6 +92,10 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Blocking Load Validator", meta = (EditCondition = "bEnableBlockingLoadValidator == true"))
 	bool bErrorBlockingLoad = true;
 
+	//If true, we ignore nodes which are disabled for compilation
+	UPROPERTY(Config, EditAnywhere, Category="Common Validators|Blocking Load Validator", DisplayName="Ignore disabled nodes", meta = (EditCondition = "bEnableBlockingLoadValidator == true"))
+	bool bBlockingLoadIgnoreDisabledNodes = true;
+
 	
 	/* Heavy Reference Validator */
 	// If true, we will validate for references above the set value in blueprints
