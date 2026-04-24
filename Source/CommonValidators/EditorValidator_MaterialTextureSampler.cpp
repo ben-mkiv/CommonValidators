@@ -5,6 +5,7 @@
 
 #include "CommonValidatorsDeveloperSettings.h"
 #include "CommonValidatorsStatics.h"
+#include "Materials/MaterialExpressionTextureObjectParameter.h"
 #include "Misc/DataValidation.h"
 
 bool UEditorValidator_MaterialTextureSampler::CanValidateAsset_Implementation(const FAssetData& InAssetData, UObject* InObject, FDataValidationContext& InContext) const
@@ -25,12 +26,9 @@ EDataValidationResult UEditorValidator_MaterialTextureSampler::ValidateLoadedAss
 				bFoundInvalidSampler = true;
 
 				const FText Title = FText::FromName(TextureSampler->GetParameterName());
-				const FText Message = FText::Format(
-					NSLOCTEXT("MaterialTextureSamplerValidator", "SamplerTypeWarning",
-							  "TextureSampler {0} Sampler Source is set to 'From texture asset'."), Title
-				);
+				const FText Message = FText::Format(NSLOCTEXT("MaterialTextureSamplerValidator", "SamplerTypeWarning", "TextureSampler {0} Sampler Source is set to 'From texture asset'."), Title);
 				
-				TSharedRef<FTokenizedMessage> TokenMessage = FTokenizedMessage::Create(EMessageSeverity::Warning, Message);
+				const TSharedRef<FTokenizedMessage> TokenMessage = FTokenizedMessage::Create(EMessageSeverity::Warning, Message);
 
 				TokenMessage->AddToken(
 					FActionToken::Create(
@@ -68,6 +66,10 @@ TArray<const UMaterialExpressionTextureSample*> UEditorValidator_MaterialTexture
 	{
 		if(const UMaterialExpressionTextureSample* TextureSample = Cast<UMaterialExpressionTextureSample>(Expression))
 		{
+			// TextureObject Parameters inherit UMaterialExpressionTextureSample but don't give the user a choice of the sampler source 
+			if(TextureSample->IsA<UMaterialExpressionTextureObjectParameter>())
+				continue;
+			
 			Result.Add(TextureSample);
 		}
 	}
