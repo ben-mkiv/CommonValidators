@@ -5,7 +5,7 @@ Collection of validators that are useful for all projects.
 Copy this plugin to either your PRROJECT_DIR/Plugins or ENGINE_DIR/Plugins folder.
 
 ### How it works
-This plugin adds three new validators to the Data Validation system in Unreal Engine. These validators will run automatically when you save an asset.
+This plugin adds new validators to the Data Validation system in Unreal Engine. These validators will run automatically when you save an asset.
 
 ## Validators
 
